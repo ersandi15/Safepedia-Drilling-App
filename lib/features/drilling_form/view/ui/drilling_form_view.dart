@@ -2,8 +2,10 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../../../config/app_colors.dart';
+import '../../../../config/app_fonts.dart';
 import '../../controller/drilling_form_controller.dart';
 import '../components/sensor_card.dart';
+import '../components/form_components.dart';
 
 class DrillingFormView extends GetView<DrillingFormController> {
   const DrillingFormView({super.key});
@@ -15,17 +17,23 @@ class DrillingFormView extends GetView<DrillingFormController> {
       appBar: AppBar(
         backgroundColor: AppColors.primary,
         foregroundColor: AppColors.white,
-        title: const Text('Form Aktivitas Drilling'),
+        elevation: 0,
+        centerTitle: false,
+        title: const Text(
+          'Form Aktivitas',
+          style: TextStyle(fontWeight: FontWeight.bold, letterSpacing: 0.5),
+        ),
       ),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16.0),
+        physics: const BouncingScrollPhysics(),
+        padding: const EdgeInsets.all(20.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // 1. Date Picker
-            const Text('Date', style: TextStyle(fontWeight: FontWeight.bold)),
-            const SizedBox(height: 8),
+            FormComponents.buildLabel('Tanggal Aktivitas'),
             InkWell(
+              borderRadius: BorderRadius.circular(12),
               onTap: () => controller.pickDate(context),
               child: Container(
                 padding: const EdgeInsets.symmetric(
@@ -33,53 +41,57 @@ class DrillingFormView extends GetView<DrillingFormController> {
                   vertical: 16,
                 ),
                 decoration: BoxDecoration(
-                  border: Border.all(color: Colors.grey.shade400),
-                  borderRadius: BorderRadius.circular(8),
                   color: AppColors.white,
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: Colors.grey.shade200),
                 ),
                 child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Obx(
-                      () => Text(
-                        controller.selectedDate.value.isEmpty
-                            ? 'Pilih Tanggal'
-                            : controller.selectedDate.value,
-                        style: TextStyle(
-                          color: controller.selectedDate.value.isEmpty
-                              ? Colors.grey
-                              : AppColors.textPrimary,
+                    const Icon(
+                      Icons.calendar_month_rounded,
+                      color: AppColors.textSecondary,
+                      size: 20,
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Obx(
+                        () => Text(
+                          controller.selectedDate.value.isEmpty
+                              ? 'Pilih Tanggal'
+                              : controller.selectedDate.value,
+                          style: TextStyle(
+                            color: controller.selectedDate.value.isEmpty
+                                ? Colors.grey.shade400
+                                : AppColors.textPrimary,
+                            fontSize: 14,
+                            fontWeight: controller.selectedDate.value.isEmpty
+                                ? FontWeight.normal
+                                : FontWeight.w600,
+                          ),
                         ),
                       ),
                     ),
-                    const Icon(Icons.calendar_today, color: AppColors.primary),
+                    const Icon(Icons.chevron_right_rounded, color: Colors.grey),
                   ],
                 ),
               ),
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: 24),
 
             // 2. Hole ID Input
-            const Text(
-              'Hole ID',
-              style: TextStyle(fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 8),
+            FormComponents.buildLabel('Hole ID'),
             TextField(
               controller: controller.holeIdController,
-              decoration: InputDecoration(
-                hintText: 'Masukkan huruf dan angka',
-                filled: true,
-                fillColor: AppColors.white,
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(8),
-                  borderSide: BorderSide(color: Colors.grey.shade400),
-                ),
+              style: AppFonts.bodyMedium.copyWith(fontWeight: FontWeight.w600),
+              decoration: FormComponents.inputDecoration(
+                'Masukkan huruf dan angka...',
+                Icons.tag_rounded,
               ),
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: 24),
 
             // 3. Accelerometer & Gyroscope Cards
+            FormComponents.buildLabel('Data Sensor Hardware', isRequired: false),
             Row(
               children: [
                 Expanded(
@@ -89,7 +101,7 @@ class DrillingFormView extends GetView<DrillingFormController> {
                     onRead: controller.readAccelerometer,
                   ),
                 ),
-                const SizedBox(width: 12),
+                const SizedBox(width: 16),
                 Expanded(
                   child: SensorCard(
                     title: 'Gyroscope',
@@ -99,44 +111,48 @@ class DrillingFormView extends GetView<DrillingFormController> {
                 ),
               ],
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: 24),
 
             // 4. Take a Picture
-            const Text(
-              'Foto Lokasi (< 250 KB)',
-              style: TextStyle(fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 8),
+            FormComponents.buildLabel('Foto Lokasi (< 250 KB)'),
             Container(
               width: double.infinity,
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
                 color: AppColors.white,
-                border: Border.all(color: Colors.grey.shade400),
-                borderRadius: BorderRadius.circular(8),
+                border: Border.all(color: Colors.grey.shade200),
+                borderRadius: BorderRadius.circular(16),
               ),
               child: Column(
                 children: [
                   Obx(() {
                     if (controller.isImageLoading.value) {
                       return const Padding(
-                        padding: EdgeInsets.all(16.0),
-                        child: CircularProgressIndicator(color: AppColors.primary),
+                        padding: EdgeInsets.all(24.0),
+                        child: CircularProgressIndicator(
+                          color: AppColors.primary,
+                        ),
                       );
                     }
-                    
+
                     return controller.imagePath.value.isEmpty
-                        ? const Icon(
-                            Icons.image_outlined,
-                            size: 48,
-                            color: Colors.grey,
+                        ? Container(
+                            padding: const EdgeInsets.all(24),
+                            decoration: BoxDecoration(
+                              color: AppColors.background,
+                              shape: BoxShape.circle,
+                            ),
+                            child: Icon(
+                              Icons.add_a_photo_rounded,
+                              size: 36,
+                              color: Colors.grey.shade400,
+                            ),
                           )
                         : GestureDetector(
                             onTap: () {
                               Get.dialog(
                                 Dialog(
                                   backgroundColor: Colors.transparent,
-                                  insetPadding: const EdgeInsets.all(10),
                                   child: Stack(
                                     alignment: Alignment.center,
                                     children: [
@@ -151,9 +167,9 @@ class DrillingFormView extends GetView<DrillingFormController> {
                                         right: 10,
                                         child: IconButton(
                                           icon: const Icon(
-                                            Icons.close,
+                                            Icons.cancel,
                                             color: Colors.white,
-                                            size: 30,
+                                            size: 36,
                                           ),
                                           onPressed: () => Get.back(),
                                         ),
@@ -164,71 +180,101 @@ class DrillingFormView extends GetView<DrillingFormController> {
                               );
                             },
                             child: ClipRRect(
-                              borderRadius: BorderRadius.circular(8),
+                              borderRadius: BorderRadius.circular(12),
                               child: Image.file(
                                 File(controller.imagePath.value),
-                                height: 150,
+                                height: 180,
                                 width: double.infinity,
                                 fit: BoxFit.cover,
                               ),
                             ),
                           );
                   }),
+
+                  const SizedBox(height: 16),
+
                   Obx(
                     () => controller.fileSizeKb.value.isNotEmpty
                         ? Padding(
-                            padding: const EdgeInsets.symmetric(vertical: 4),
-                            child: Text(
-                              controller.fileSizeKb.value,
-                              style: TextStyle(
-                                color: AppColors.statusSubmitted,
-                                fontWeight: FontWeight.bold,
-                              ),
+                            padding: const EdgeInsets.only(bottom: 12),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                const Icon(
+                                  Icons.check_circle_rounded,
+                                  color: AppColors.statusSubmitted,
+                                  size: 16,
+                                ),
+                                const SizedBox(width: 6),
+                                Text(
+                                  'Ukuran File: ${controller.fileSizeKb.value}',
+                                  style: const TextStyle(
+                                    color: AppColors.statusSubmitted,
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 13,
+                                  ),
+                                ),
+                              ],
                             ),
                           )
                         : const SizedBox.shrink(),
                   ),
 
-                  const SizedBox(height: 8),
                   Obx(
-                    () => ElevatedButton.icon(
-                      onPressed: controller.isImageLoading.value
-                          ? null
-                          : () => controller.takePicture(),
-                      icon: const Icon(Icons.camera_alt),
-                      label: Text(
-                        controller.isImageLoading.value
-                            ? 'Memproses Gambar...'
-                            : 'Take a Picture',
-                      ),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColors.primaryLight,
-                        foregroundColor: AppColors.white,
-                        disabledBackgroundColor: Colors.grey.shade300,
-                        disabledForegroundColor: Colors.grey.shade600,
+                    () => SizedBox(
+                      width: double.infinity,
+                      child: ElevatedButton.icon(
+                        onPressed: controller.isImageLoading.value
+                            ? null
+                            : () => controller.takePicture(),
+                        icon: const Icon(Icons.camera_alt_rounded),
+                        label: Text(
+                          controller.isImageLoading.value
+                              ? 'Memproses...'
+                              : (controller.imagePath.value.isEmpty
+                                    ? 'Ambil Gambar'
+                                    : 'Ganti Gambar'),
+                        ),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AppColors.primary,
+                          foregroundColor: AppColors.white,
+                          padding: const EdgeInsets.symmetric(vertical: 14),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          elevation: 0,
+                        ),
                       ),
                     ),
                   ),
                 ],
               ),
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: 24),
 
             // 5. Status Dropdown
-            const Text('Status', style: TextStyle(fontWeight: FontWeight.bold)),
-            const SizedBox(height: 8),
+            FormComponents.buildLabel('Status Pengerjaan'),
             Obx(
               () => DropdownButtonFormField<String>(
                 initialValue: controller.selectedStatus.value,
-                decoration: InputDecoration(
-                  filled: true,
-                  fillColor: AppColors.white,
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8),
-                  ),
+                icon: const Icon(
+                  Icons.expand_more_rounded,
+                  color: AppColors.textSecondary,
                 ),
+                decoration: FormComponents.inputDecoration(
+                  '',
+                  Icons.flag_rounded,
+                ).copyWith(hintText: null),
                 items: ['Complete', 'Not Complete'].map((String status) {
-                  return DropdownMenuItem(value: status, child: Text(status));
+                  return DropdownMenuItem(
+                    value: status,
+                    child: Text(
+                      status,
+                      style: AppFonts.bodyMedium.copyWith(
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  );
                 }).toList(),
                 onChanged: (newValue) {
                   if (newValue != null) {
@@ -237,56 +283,69 @@ class DrillingFormView extends GetView<DrillingFormController> {
                 },
               ),
             ),
-            const SizedBox(height: 32),
+            const SizedBox(height: 40),
           ],
         ),
       ),
 
-      // 6. Action Buttons di bagian bawah
+      // 6. Action Buttons
       bottomNavigationBar: Container(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
         decoration: BoxDecoration(
           color: AppColors.white,
           boxShadow: [
             BoxShadow(
-              color: Colors.black12,
-              blurRadius: 4,
-              offset: const Offset(0, -2),
+              color: Colors.black.withValues(alpha: 0.05),
+              blurRadius: 10,
+              offset: const Offset(0, -4),
             ),
           ],
         ),
-        child: Row(
-          children: [
-            Expanded(
-              child: OutlinedButton(
-                onPressed: () => controller.saveAsDraft(),
-                style: OutlinedButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(vertical: 14),
-                  side: const BorderSide(color: AppColors.statusDraft),
-                  foregroundColor: AppColors.statusDraft,
-                ),
-                child: const Text(
-                  'Save as Draft',
-                  style: TextStyle(fontWeight: FontWeight.bold),
-                ),
-              ),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: ElevatedButton(
-                onPressed: () => controller.submitData(),
-                style: ElevatedButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(vertical: 14),
-                  backgroundColor: AppColors.primary,
-                  foregroundColor: AppColors.white,
-                ),
-                child: const Text(
-                  'Submit',
-                  style: TextStyle(fontWeight: FontWeight.bold),
+        child: SafeArea(
+          child: Row(
+            children: [
+              Expanded(
+                child: OutlinedButton(
+                  onPressed: () => controller.saveAsDraft(),
+                  style: OutlinedButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    side: BorderSide(
+                      color: AppColors.statusDraft.withValues(alpha: 0.5),
+                      width: 1.5,
+                    ),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    foregroundColor: AppColors.statusDraft,
+                  ),
+                  child: const Text(
+                    'Save as Draft',
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
+                  ),
                 ),
               ),
-            ),
-          ],
+              const SizedBox(width: 16),
+              Expanded(
+                child: ElevatedButton(
+                  onPressed: () => controller.submitData(),
+                  style: ElevatedButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    backgroundColor: AppColors.primary,
+                    foregroundColor: AppColors.white,
+                    elevation: 4,
+                    shadowColor: AppColors.primary.withValues(alpha: 0.4),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                  child: const Text(
+                    'Submit',
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
