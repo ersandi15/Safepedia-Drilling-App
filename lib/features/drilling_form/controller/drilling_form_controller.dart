@@ -39,22 +39,37 @@ class DrillingFormController extends GetxController {
 
   // Fungsi utama untuk menyimpan data (0 = Draft, 1 = Submitted)
   Future<void> _saveData(int isSubmittedStatus) async {
-    // 1. Validasi Input Dasar
-    if (selectedDate.value.isEmpty ||
-        holeIdController.text.isEmpty ||
-        imagePath.value.isEmpty) {
-      Get.snackbar(
-        'Peringatan',
-        'Tanggal, Hole ID, dan Foto Lokasi wajib diisi!',
-        backgroundColor: Colors.red.shade100,
-        colorText: Colors.red.shade900,
-      );
-      return;
+    // 1. Validasi Berdasarkan Status
+    if (isSubmittedStatus == 1) {
+      // Validasi KETAT untuk SUBMIT (Semua wajib diisi)
+      if (selectedDate.value.isEmpty ||
+          holeIdController.text.isEmpty ||
+          imagePath.value.isEmpty) {
+        Get.snackbar(
+          'Peringatan',
+          'Tanggal, Hole ID, dan Foto Lokasi wajib diisi untuk Submit!',
+          backgroundColor: Colors.red.shade100,
+          colorText: Colors.red.shade900,
+        );
+        return;
+      }
+    } else {
+      // Validasi LONGGAR untuk DRAFT (Minimal isi Hole ID agar bisa dikenali di daftar)
+      if (holeIdController.text.isEmpty) {
+        Get.snackbar(
+          'Peringatan',
+          'Minimal isi Hole ID untuk bisa disimpan sebagai Draft',
+          backgroundColor: Colors.orange.shade100,
+          colorText: Colors.orange.shade900,
+        );
+        return;
+      }
     }
 
     // 2. Bungkus data ke dalam Model
+    // (Jika tanggal / image kosong, kita kirim string kosong ke SQLite)
     final activity = DrillingActivityModel(
-      date: selectedDate.value,
+      date: selectedDate.value.isEmpty ? 'Belum diatur' : selectedDate.value,
       holeId: holeIdController.text,
       accelX: accelValues[0],
       accelY: accelValues[1],
@@ -67,43 +82,23 @@ class DrillingFormController extends GetxController {
       isSubmitted: isSubmittedStatus,
     );
 
-    // Menampilkan overlay loading
-    Get.dialog(
-      const Center(
-        child: CircularProgressIndicator(),
-      ),
-      barrierDismissible: false,
-    );
-
     // 3. Simpan ke SQLite
     try {
-      // Simulasi delay sedikit agar loading terlihat bagus
-      await Future.delayed(const Duration(milliseconds: 1500));
-
       await databaseService.insertActivity(activity);
 
-      // Tutup dialog loading
-      if (Get.isDialogOpen == true) {
-        Get.back();
-      }
-
-      // Tutup form dan kembali ke halaman Home
-      // Ini akan men-trigger `.then()` di HomeView untuk me-refresh data
-      Get.back();
-
-      // Tampilkan pesan sukses
       Get.snackbar(
         'Sukses',
         isSubmittedStatus == 0
-            ? 'Data berhasil disimpan sebagai Draft'
-            : 'Data berhasil di-Submit (Online)',
+            ? 'Draft berhasil disimpan'
+            : 'Data berhasil di-Submit',
         backgroundColor: Colors.green.shade100,
-        colorText: Colors.green.shade900,
       );
+
+      // 4. Kembali ke halaman Home setelah 1 detik
+      Future.delayed(const Duration(seconds: 1), () {
+        Get.back();
+      });
     } catch (e) {
-      if (Get.isDialogOpen == true) {
-        Get.back(); // Tutup dialog loading
-      }
       Get.snackbar('Error', 'Gagal menyimpan data: $e');
     }
   }
