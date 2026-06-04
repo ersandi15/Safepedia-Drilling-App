@@ -48,13 +48,13 @@ class ActivityListComponent extends StatelessWidget {
               height: 120,
               decoration: BoxDecoration(
                 color: isDraft
-                    ? AppColors.statusDraft.withOpacity(0.05)
-                    : AppColors.statusSubmitted.withOpacity(0.05),
+                    ? AppColors.statusDraft.withValues(alpha: 0.05)
+                    : AppColors.statusSubmitted.withValues(alpha: 0.05),
                 shape: BoxShape.circle,
                 border: Border.all(
                   color: isDraft
-                      ? AppColors.statusDraft.withOpacity(0.2)
-                      : AppColors.statusSubmitted.withOpacity(0.2),
+                      ? AppColors.statusDraft.withValues(alpha: 0.2)
+                      : AppColors.statusSubmitted.withValues(alpha: 0.2),
                   width: 2,
                   // Trik visual agar tidak terlalu solid
                   strokeAlign: BorderSide.strokeAlignOutside,
@@ -65,8 +65,8 @@ class ActivityListComponent extends StatelessWidget {
                   isDraft ? Icons.edit_document : Icons.cloud_done_rounded,
                   size: 50,
                   color: isDraft
-                      ? AppColors.statusDraft.withOpacity(0.8)
-                      : AppColors.statusSubmitted.withOpacity(0.8),
+                      ? AppColors.statusDraft.withValues(alpha: 0.8)
+                      : AppColors.statusSubmitted.withValues(alpha: 0.8),
                 ),
               ),
             ),
@@ -85,7 +85,7 @@ class ActivityListComponent extends StatelessWidget {
               'Tekan tombol + di bawah untuk\nmerekam aktivitas drilling baru.',
               textAlign: TextAlign.center,
               style: TextStyle(
-                color: AppColors.textSecondary.withOpacity(0.8),
+                color: AppColors.textSecondary.withValues(alpha: 0.8),
                 fontSize: 14,
                 height: 1.4,
               ),
@@ -109,7 +109,7 @@ class ActivityListComponent extends StatelessWidget {
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.04),
+            color: Colors.black.withValues(alpha: 0.04),
             blurRadius: 15,
             offset: const Offset(0, 4),
           ),
@@ -128,7 +128,7 @@ class ActivityListComponent extends StatelessWidget {
               width: 85,
               height: 85, // Dibuat kotak presisi
               fit: BoxFit.cover,
-              errorBuilder: (_, __, ___) => Container(
+              errorBuilder: (_, _, _) => Container(
                 width: 85,
                 height: 85,
                 color: AppColors.background,
@@ -224,8 +224,8 @@ class ActivityListComponent extends StatelessWidget {
       ), // Padding diperbesar sedikit
       decoration: BoxDecoration(
         color: isDraft
-            ? AppColors.statusDraft.withOpacity(0.12)
-            : AppColors.statusSubmitted.withOpacity(0.12),
+            ? AppColors.statusDraft.withValues(alpha: 0.12)
+            : AppColors.statusSubmitted.withValues(alpha: 0.12),
         borderRadius: BorderRadius.circular(8), // Sudut agak tegas
       ),
       child: Text(
