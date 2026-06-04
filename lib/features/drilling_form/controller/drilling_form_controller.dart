@@ -25,6 +25,9 @@ class DrillingFormController extends GetxController {
   // Variabel untuk menyimpan info ukuran file (opsional, untuk dipamerkan ke UI)
   final fileSizeKb = ''.obs;
 
+  // Indikator loading saat memproses/kompres gambar
+  final isImageLoading = false.obs;
+
   @override
   void onClose() {
     holeIdController.dispose();
@@ -99,6 +102,7 @@ class DrillingFormController extends GetxController {
 
   Future<void> _processImage(ImageSource source) async {
     try {
+      isImageLoading.value = true;
       final File? result = await imageService.pickAndCompressImage(source);
 
       if (result != null) {
@@ -117,6 +121,8 @@ class DrillingFormController extends GetxController {
       }
     } catch (e) {
       Get.snackbar('Error', 'Gagal memproses gambar: $e');
+    } finally {
+      isImageLoading.value = false;
     }
   }
 

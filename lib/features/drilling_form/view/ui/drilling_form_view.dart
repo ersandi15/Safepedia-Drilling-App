@@ -117,23 +117,63 @@ class DrillingFormView extends GetView<DrillingFormController> {
               ),
               child: Column(
                 children: [
-                  Obx(
-                    () => controller.imagePath.value.isEmpty
+                  Obx(() {
+                    if (controller.isImageLoading.value) {
+                      return const Padding(
+                        padding: EdgeInsets.all(16.0),
+                        child: CircularProgressIndicator(color: AppColors.primary),
+                      );
+                    }
+                    
+                    return controller.imagePath.value.isEmpty
                         ? const Icon(
                             Icons.image_outlined,
                             size: 48,
                             color: Colors.grey,
                           )
-                        : ClipRRect(
-                            borderRadius: BorderRadius.circular(8),
-                            child: Image.file(
-                              File(controller.imagePath.value),
-                              height: 150,
-                              width: double.infinity,
-                              fit: BoxFit.cover,
+                        : GestureDetector(
+                            onTap: () {
+                              Get.dialog(
+                                Dialog(
+                                  backgroundColor: Colors.transparent,
+                                  insetPadding: const EdgeInsets.all(10),
+                                  child: Stack(
+                                    alignment: Alignment.center,
+                                    children: [
+                                      InteractiveViewer(
+                                        child: Image.file(
+                                          File(controller.imagePath.value),
+                                          fit: BoxFit.contain,
+                                        ),
+                                      ),
+                                      Positioned(
+                                        top: 10,
+                                        right: 10,
+                                        child: IconButton(
+                                          icon: const Icon(
+                                            Icons.close,
+                                            color: Colors.white,
+                                            size: 30,
+                                          ),
+                                          onPressed: () => Get.back(),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              );
+                            },
+                            child: ClipRRect(
+                              borderRadius: BorderRadius.circular(8),
+                              child: Image.file(
+                                File(controller.imagePath.value),
+                                height: 150,
+                                width: double.infinity,
+                                fit: BoxFit.cover,
+                              ),
                             ),
-                          ),
-                  ),
+                          );
+                  }),
                   Obx(
                     () => controller.fileSizeKb.value.isNotEmpty
                         ? Padding(
@@ -150,13 +190,23 @@ class DrillingFormView extends GetView<DrillingFormController> {
                   ),
 
                   const SizedBox(height: 8),
-                  ElevatedButton.icon(
-                    onPressed: () => controller.takePicture(),
-                    icon: const Icon(Icons.camera_alt),
-                    label: const Text('Take a Picture'),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColors.primaryLight,
-                      foregroundColor: AppColors.white,
+                  Obx(
+                    () => ElevatedButton.icon(
+                      onPressed: controller.isImageLoading.value
+                          ? null
+                          : () => controller.takePicture(),
+                      icon: const Icon(Icons.camera_alt),
+                      label: Text(
+                        controller.isImageLoading.value
+                            ? 'Memproses Gambar...'
+                            : 'Take a Picture',
+                      ),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppColors.primaryLight,
+                        foregroundColor: AppColors.white,
+                        disabledBackgroundColor: Colors.grey.shade300,
+                        disabledForegroundColor: Colors.grey.shade600,
+                      ),
                     ),
                   ),
                 ],
