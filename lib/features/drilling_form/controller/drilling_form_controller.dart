@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
+import 'package:safepedia_drilling_app/features/home/models/drilling_activity_model.dart';
+import 'package:safepedia_drilling_app/services/database_service.dart';
 import 'package:safepedia_drilling_app/services/image_service.dart';
 import 'package:safepedia_drilling_app/services/sensor_service.dart';
 
@@ -21,6 +23,7 @@ class DrillingFormController extends GetxController {
   // Inisialisasi Service
   final ImageService imageService = ImageService();
   final SensorService sensorService = SensorService();
+  final DatabaseService databaseService = DatabaseService();
 
   // Variabel untuk menyimpan info ukuran file (opsional, untuk dipamerkan ke UI)
   final fileSizeKb = ''.obs;
@@ -34,12 +37,77 @@ class DrillingFormController extends GetxController {
     super.onClose();
   }
 
+  // Fungsi utama untuk menyimpan data (0 = Draft, 1 = Submitted)
+  Future<void> _saveData(int isSubmittedStatus) async {
+    // 1. Validasi Input Dasar
+    if (selectedDate.value.isEmpty ||
+        holeIdController.text.isEmpty ||
+        imagePath.value.isEmpty) {
+      Get.snackbar(
+        'Peringatan',
+        'Tanggal, Hole ID, dan Foto Lokasi wajib diisi!',
+        backgroundColor: Colors.red.shade100,
+        colorText: Colors.red.shade900,
+      );
+      return;
+    }
+
+    // 2. Bungkus data ke dalam Model
+    final activity = DrillingActivityModel(
+      date: selectedDate.value,
+      holeId: holeIdController.text,
+      accelX: accelValues[0],
+      accelY: accelValues[1],
+      accelZ: accelValues[2],
+      gyroX: gyroValues[0],
+      gyroY: gyroValues[1],
+      gyroZ: gyroValues[2],
+      imagePath: imagePath.value,
+      status: selectedStatus.value,
+      isSubmitted: isSubmittedStatus,
+    );
+
+    // Menampilkan overlay loading
+    Get.dialog(
+      const Center(
+        child: CircularProgressIndicator(),
+      ),
+      barrierDismissible: false,
+    );
+
+    // 3. Simpan ke SQLite
+    try {
+      // Simulasi delay sedikit agar loading terlihat bagus (karena SQLite sangat cepat)
+      await Future.delayed(const Duration(milliseconds: 1500));
+
+      await databaseService.insertActivity(activity);
+
+      Get.back(); // Menutup dialog loading
+
+      Get.snackbar(
+        'Sukses',
+        isSubmittedStatus == 0
+            ? 'Data berhasil disimpan sebagai Draft'
+            : 'Data berhasil di-Submit (Online)',
+        backgroundColor: Colors.green.shade100,
+      );
+
+      // 4. Kembali ke halaman Home setelah pesan sukses tampil
+      Future.delayed(const Duration(seconds: 1), () {
+        Get.back();
+      });
+    } catch (e) {
+      Get.back(); // Menutup dialog loading
+      Get.snackbar('Error', 'Gagal menyimpan data: $e');
+    }
+  }
+
   void saveAsDraft() {
-    Get.snackbar('Info', 'Disimpan sebagai Draft');
+    _saveData(0); // 0 = Offline/Draft
   }
 
   void submitData() {
-    Get.snackbar('Info', 'Data disubmit (Online)');
+    _saveData(1); // 1 = Online/Submitted
   }
 
   // Ubah fungsi pickDate menjadi seperti ini:
