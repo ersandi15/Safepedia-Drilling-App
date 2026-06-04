@@ -77,27 +77,33 @@ class DrillingFormController extends GetxController {
 
     // 3. Simpan ke SQLite
     try {
-      // Simulasi delay sedikit agar loading terlihat bagus (karena SQLite sangat cepat)
+      // Simulasi delay sedikit agar loading terlihat bagus
       await Future.delayed(const Duration(milliseconds: 1500));
 
       await databaseService.insertActivity(activity);
 
-      Get.back(); // Menutup dialog loading
+      // Tutup dialog loading
+      if (Get.isDialogOpen == true) {
+        Get.back();
+      }
 
+      // Tutup form dan kembali ke halaman Home
+      // Ini akan men-trigger `.then()` di HomeView untuk me-refresh data
+      Get.back();
+
+      // Tampilkan pesan sukses
       Get.snackbar(
         'Sukses',
         isSubmittedStatus == 0
             ? 'Data berhasil disimpan sebagai Draft'
             : 'Data berhasil di-Submit (Online)',
         backgroundColor: Colors.green.shade100,
+        colorText: Colors.green.shade900,
       );
-
-      // 4. Kembali ke halaman Home setelah pesan sukses tampil
-      Future.delayed(const Duration(seconds: 1), () {
-        Get.back();
-      });
     } catch (e) {
-      Get.back(); // Menutup dialog loading
+      if (Get.isDialogOpen == true) {
+        Get.back(); // Tutup dialog loading
+      }
       Get.snackbar('Error', 'Gagal menyimpan data: $e');
     }
   }
