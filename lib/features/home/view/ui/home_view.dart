@@ -18,36 +18,64 @@ class HomeView extends GetView<HomeController> {
           backgroundColor: AppColors.primary,
           foregroundColor: AppColors.white,
           elevation: 0,
+          centerTitle: false,
           title: const Text(
             'Aktivitas Drilling',
-            style: TextStyle(fontWeight: FontWeight.w600),
+            style: TextStyle(fontWeight: FontWeight.bold, letterSpacing: 0.5),
           ),
-          bottom: const TabBar(
-            labelColor: AppColors.white,
-            unselectedLabelColor: Colors.white70,
-            indicatorColor: AppColors.white,
-            indicatorWeight: 3.0,
-            tabs: [
-              Tab(icon: Icon(Icons.edit_document), text: 'Offline (Draft)'),
-              Tab(icon: Icon(Icons.cloud_done), text: 'Online (Submitted)'),
+          bottom: TabBar(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            labelColor: AppColors.primary,
+            unselectedLabelColor: AppColors.white,
+            indicatorSize: TabBarIndicatorSize.tab,
+            indicator: BoxDecoration(
+              borderRadius: BorderRadius.circular(30),
+              color: AppColors.white, // Pill shape indicator
+            ),
+            dividerColor: Colors.transparent, // Hilangkan garis bawah default
+            tabs: const [
+              Tab(
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(Icons.edit_document, size: 18),
+                    SizedBox(width: 8),
+                    Text(
+                      'Draft',
+                      style: TextStyle(fontWeight: FontWeight.w600),
+                    ),
+                  ],
+                ),
+              ),
+              Tab(
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(Icons.cloud_done, size: 18),
+                    SizedBox(width: 8),
+                    Text(
+                      'Submitted',
+                      style: TextStyle(fontWeight: FontWeight.w600),
+                    ),
+                  ],
+                ),
+              ),
             ],
           ),
         ),
         body: Obx(() {
-          // Jika sedang loading, tampilkan indikator putar
           if (controller.isLoading.value) {
-            return const Center(child: CircularProgressIndicator());
+            return const Center(
+              child: CircularProgressIndicator(color: AppColors.primary),
+            );
           }
 
           return TabBarView(
             children: [
-              // Tab 1: Menampilkan list Offline (Draft)
               ActivityListComponent(
                 list: controller.offlineList,
                 isDraft: true,
               ),
-
-              // Tab 2: Menampilkan list Online (Submitted)
               ActivityListComponent(
                 list: controller.onlineList,
                 isDraft: false,
@@ -56,14 +84,17 @@ class HomeView extends GetView<HomeController> {
           );
         }),
         floatingActionButton: FloatingActionButton.extended(
-          // PENTING: Gunakan .then() untuk merefresh data setelah form ditutup
           onPressed: () => Get.toNamed(AppRoutes.drillingForm)?.then((_) {
             controller.fetchActivities();
           }),
           backgroundColor: AppColors.primary,
           foregroundColor: AppColors.white,
-          icon: const Icon(Icons.add),
-          label: const Text('Aktivitas Baru'),
+          elevation: 4,
+          icon: const Icon(Icons.add_rounded),
+          label: const Text(
+            'Aktivitas Baru',
+            style: TextStyle(fontWeight: FontWeight.bold),
+          ),
         ),
       ),
     );
