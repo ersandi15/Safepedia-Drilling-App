@@ -108,6 +108,9 @@ class HomeView extends GetView<HomeController> {
                   ActivityListComponent(
                     list: controller.onlineList,
                     isDraft: false,
+                    onView: (activity) {
+                      Get.toNamed(AppRoutes.activityDetail, arguments: activity);
+                    },
                   ),
                 ],
               ),

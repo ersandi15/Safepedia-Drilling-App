@@ -8,15 +8,18 @@ class ActivityListComponent extends StatelessWidget {
   final List<DrillingActivityModel> list;
   final bool isDraft;
 
-  /// Callback dipanggil saat card Draft di-tap untuk edit.
-  /// Hanya digunakan ketika [isDraft] = true.
+  /// Callback saat card Draft di-tap untuk edit.
   final void Function(DrillingActivityModel)? onEdit;
+
+  /// Callback saat card Submitted di-tap untuk lihat detail.
+  final void Function(DrillingActivityModel)? onView;
 
   const ActivityListComponent({
     super.key,
     required this.list,
     required this.isDraft,
     this.onEdit,
+    this.onView,
   });
 
   // Breakpoint: lebar >= 600 dianggap tablet
@@ -71,14 +74,26 @@ class ActivityListComponent extends StatelessWidget {
     );
   }
 
-  /// Membungkus card dengan InkWell tap (untuk draft) atau plain card
+  /// Membungkus card dengan InkWell tap (untuk draft edit / submitted view)
   Widget _buildCardWrapper(DrillingActivityModel item) {
+    // Draft: tap untuk edit
     if (isDraft && onEdit != null) {
       return Material(
         color: Colors.transparent,
         child: InkWell(
-          borderRadius: BorderRadius.circular(20),
+          borderRadius: BorderRadius.circular(16),
           onTap: () => onEdit!(item),
+          child: _buildCard(item),
+        ),
+      );
+    }
+    // Submitted: tap untuk lihat detail
+    if (!isDraft && onView != null) {
+      return Material(
+        color: Colors.transparent,
+        child: InkWell(
+          borderRadius: BorderRadius.circular(16),
+          onTap: () => onView!(item),
           child: _buildCard(item),
         ),
       );
