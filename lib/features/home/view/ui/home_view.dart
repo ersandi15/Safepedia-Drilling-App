@@ -8,8 +8,14 @@ import '../components/activity_list_component.dart';
 class HomeView extends GetView<HomeController> {
   const HomeView({super.key});
 
+  // Lebar max untuk konten di tablet agar tidak terlalu melebar
+  static const double _maxContentWidth = 900;
+
   @override
   Widget build(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final isTablet = screenWidth >= 600;
+
     return DefaultTabController(
       length: 2,
       child: Scaffold(
@@ -18,49 +24,62 @@ class HomeView extends GetView<HomeController> {
           backgroundColor: AppColors.primary,
           foregroundColor: AppColors.white,
           elevation: 0,
-          centerTitle: false,
+          centerTitle: isTablet,
           title: const Text(
             'Aktivitas Drilling',
             style: TextStyle(fontWeight: FontWeight.bold, letterSpacing: 0.5),
           ),
-          bottom: TabBar(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-            labelColor: AppColors.primary,
-            unselectedLabelColor: AppColors.white,
-            indicatorSize: TabBarIndicatorSize.tab,
-            indicator: BoxDecoration(
-              borderRadius: BorderRadius.circular(30),
-              color: AppColors.white, // Pill shape indicator
+          bottom: PreferredSize(
+            preferredSize: const Size.fromHeight(56),
+            child: Align(
+              alignment: Alignment.center,
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: _maxContentWidth),
+                child: TabBar(
+                  padding: EdgeInsets.symmetric(
+                    // Tablet: tab lebih sempit agar tidak terlalu lebar
+                    horizontal: isTablet ? screenWidth * 0.15 : 16,
+                    vertical: 8,
+                  ),
+                  labelColor: AppColors.primary,
+                  unselectedLabelColor: AppColors.white,
+                  indicatorSize: TabBarIndicatorSize.tab,
+                  indicator: BoxDecoration(
+                    borderRadius: BorderRadius.circular(30),
+                    color: AppColors.white,
+                  ),
+                  dividerColor: Colors.transparent,
+                  tabs: const [
+                    Tab(
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(Icons.edit_document, size: 18),
+                          SizedBox(width: 8),
+                          Text(
+                            'Draft',
+                            style: TextStyle(fontWeight: FontWeight.w600),
+                          ),
+                        ],
+                      ),
+                    ),
+                    Tab(
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(Icons.cloud_done, size: 18),
+                          SizedBox(width: 8),
+                          Text(
+                            'Submitted',
+                            style: TextStyle(fontWeight: FontWeight.w600),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
             ),
-            dividerColor: Colors.transparent, // Hilangkan garis bawah default
-            tabs: const [
-              Tab(
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(Icons.edit_document, size: 18),
-                    SizedBox(width: 8),
-                    Text(
-                      'Draft',
-                      style: TextStyle(fontWeight: FontWeight.w600),
-                    ),
-                  ],
-                ),
-              ),
-              Tab(
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(Icons.cloud_done, size: 18),
-                    SizedBox(width: 8),
-                    Text(
-                      'Submitted',
-                      style: TextStyle(fontWeight: FontWeight.w600),
-                    ),
-                  ],
-                ),
-              ),
-            ],
           ),
         ),
         body: Obx(() {
@@ -70,17 +89,29 @@ class HomeView extends GetView<HomeController> {
             );
           }
 
-          return TabBarView(
-            children: [
-              ActivityListComponent(
-                list: controller.offlineList,
-                isDraft: true,
+          return Align(
+            alignment: Alignment.topCenter,
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: _maxContentWidth),
+              child: TabBarView(
+                children: [
+                  ActivityListComponent(
+                    list: controller.offlineList,
+                    isDraft: true,
+                    onEdit: (draft) {
+                      Get.toNamed(
+                        AppRoutes.drillingForm,
+                        arguments: draft,
+                      )?.then((_) => controller.fetchActivities());
+                    },
+                  ),
+                  ActivityListComponent(
+                    list: controller.onlineList,
+                    isDraft: false,
+                  ),
+                ],
               ),
-              ActivityListComponent(
-                list: controller.onlineList,
-                isDraft: false,
-              ),
-            ],
+            ),
           );
         }),
         floatingActionButton: FloatingActionButton.extended(

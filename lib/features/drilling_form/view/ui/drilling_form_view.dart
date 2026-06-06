@@ -19,9 +19,16 @@ class DrillingFormView extends GetView<DrillingFormController> {
         foregroundColor: AppColors.white,
         elevation: 0,
         centerTitle: false,
-        title: const Text(
-          'Form Aktivitas',
-          style: TextStyle(fontWeight: FontWeight.bold, letterSpacing: 0.5),
+        title: Obx(
+          () => Text(
+            controller.editingId.value != null
+                ? 'Edit Draft'
+                : 'Form Aktivitas',
+            style: const TextStyle(
+              fontWeight: FontWeight.bold,
+              letterSpacing: 0.5,
+            ),
+          ),
         ),
       ),
       body: SingleChildScrollView(
@@ -138,7 +145,7 @@ class DrillingFormView extends GetView<DrillingFormController> {
                     return controller.imagePath.value.isEmpty
                         ? Container(
                             padding: const EdgeInsets.all(24),
-                            decoration: BoxDecoration(
+                            decoration: const BoxDecoration(
                               color: AppColors.background,
                               shape: BoxShape.circle,
                             ),
@@ -232,8 +239,8 @@ class DrillingFormView extends GetView<DrillingFormController> {
                           controller.isImageLoading.value
                               ? 'Memproses...'
                               : (controller.imagePath.value.isEmpty
-                                    ? 'Ambil Gambar'
-                                    : 'Ganti Gambar'),
+                                  ? 'Ambil Gambar'
+                                  : 'Ganti Gambar'),
                         ),
                         style: ElevatedButton.styleFrom(
                           backgroundColor: AppColors.primary,

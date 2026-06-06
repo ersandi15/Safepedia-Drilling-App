@@ -21,6 +21,9 @@ class DrillingFormController extends GetxController {
   final imagePath = ''.obs;
   final selectedStatus = 'Complete'.obs;
 
+  // Mode edit: menyimpan id draft yang sedang diedit (null = mode create baru)
+  final Rxn<int> editingId = Rxn<int>();
+
   // Inisialisasi Service
   final ImageService imageService = ImageService();
   final SensorService sensorService = SensorService();
@@ -36,6 +39,17 @@ class DrillingFormController extends GetxController {
   void onClose() {
     holeIdController.dispose();
     super.onClose();
+  }
+
+  /// Pre-fill semua field form dari data draft yang ada
+  void loadDraft(DrillingActivityModel draft) {
+    editingId.value = draft.id;
+    holeIdController.text = draft.holeId;
+    selectedDate.value = draft.date == 'Belum diatur' ? '' : draft.date;
+    accelValues.value = [draft.accelX, draft.accelY, draft.accelZ];
+    gyroValues.value = [draft.gyroX, draft.gyroY, draft.gyroZ];
+    imagePath.value = draft.imagePath;
+    selectedStatus.value = draft.status;
   }
 
   // Fungsi utama untuk menyimpan data (0 = Draft, 1 = Submitted)
@@ -68,8 +82,8 @@ class DrillingFormController extends GetxController {
     }
 
     // 2. Bungkus data ke dalam Model
-    // (Jika tanggal / image kosong, kita kirim string kosong ke SQLite)
     final activity = DrillingActivityModel(
+      id: editingId.value, // null saat create baru, ada isinya saat edit
       date: selectedDate.value.isEmpty ? 'Belum diatur' : selectedDate.value,
       holeId: holeIdController.text,
       accelX: accelValues[0],
@@ -83,9 +97,15 @@ class DrillingFormController extends GetxController {
       isSubmitted: isSubmittedStatus,
     );
 
-    // 3. Simpan ke SQLite
+    // 3. Simpan / Update ke SQLite
     try {
-      await databaseService.insertActivity(activity);
+      if (editingId.value != null) {
+        // Mode EDIT: update baris yang sudah ada
+        await databaseService.updateActivity(activity);
+      } else {
+        // Mode CREATE: insert baris baru
+        await databaseService.insertActivity(activity);
+      }
 
       Get.snackbar(
         'Sukses',

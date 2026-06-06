@@ -3,6 +3,7 @@ import 'package:safepedia_drilling_app/config/app_routes.dart';
 import 'package:safepedia_drilling_app/features/drilling_form/controller/drilling_form_controller.dart';
 import 'package:safepedia_drilling_app/features/drilling_form/view/ui/drilling_form_view.dart';
 import 'package:safepedia_drilling_app/features/home/controller/home_controller.dart';
+import 'package:safepedia_drilling_app/features/home/models/drilling_activity_model.dart';
 import 'package:safepedia_drilling_app/features/home/view/ui/home_view.dart';
 import 'package:safepedia_drilling_app/features/splash/controller/splash_controller.dart';
 import 'package:safepedia_drilling_app/features/splash/view/ui/splash_view.dart';
@@ -35,7 +36,12 @@ class AppPages {
         name: AppRoutes.drillingForm,
         page: () => const DrillingFormView(),
         binding: BindingsBuilder(() {
-          Get.lazyPut(() => DrillingFormController());
+          final controller = Get.put(DrillingFormController());
+          // Jika ada argument berupa DrillingActivityModel, berarti mode EDIT
+          final args = Get.arguments;
+          if (args is DrillingActivityModel) {
+            controller.loadDraft(args);
+          }
         }),
       ),
     ];

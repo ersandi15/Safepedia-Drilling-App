@@ -39,6 +39,17 @@ class DatabaseService {
     return List.generate(maps.length, (i) => DrillingActivityModel.fromMap(maps[i]));
   }
 
+  // Fungsi untuk mengupdate data yang sudah ada (edit draft)
+  Future<int> updateActivity(DrillingActivityModel activity) async {
+    final db = await DbProvider.database;
+    return await db.update(
+      DbProvider.tableName,
+      activity.toMap(),
+      where: 'id = ?',
+      whereArgs: [activity.id],
+    );
+  }
+
   // Fungsi opsional: Mengubah status dari Draft menjadi Submitted (jika nanti dibutuhkan di UI)
   Future<int> submitDraft(int id) async {
     final db = await DbProvider.database;
