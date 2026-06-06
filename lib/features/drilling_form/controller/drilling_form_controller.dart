@@ -8,6 +8,7 @@ import 'package:safepedia_drilling_app/features/home/models/drilling_activity_mo
 import 'package:safepedia_drilling_app/services/database_service.dart';
 import 'package:safepedia_drilling_app/services/image_service.dart';
 import 'package:safepedia_drilling_app/services/sensor_service.dart';
+import 'package:safepedia_drilling_app/config/app_routes.dart';
 
 class DrillingFormController extends GetxController {
   // Controller untuk teks input
@@ -94,10 +95,8 @@ class DrillingFormController extends GetxController {
         backgroundColor: Colors.green.shade100,
       );
 
-      // 4. Kembali ke halaman Home setelah 1 detik
-      Future.delayed(const Duration(seconds: 1), () {
-        Get.back();
-      });
+      // 4. Kembali ke halaman Home
+      Get.offAllNamed(AppRoutes.home);
     } catch (e) {
       Get.snackbar('Error', 'Gagal menyimpan data: $e');
     }
