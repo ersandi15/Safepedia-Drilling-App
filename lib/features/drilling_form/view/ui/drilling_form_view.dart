@@ -98,7 +98,10 @@ class DrillingFormView extends GetView<DrillingFormController> {
             const SizedBox(height: 24),
 
             // 3. Accelerometer & Gyroscope Cards
-            FormComponents.buildLabel('Data Sensor Hardware', isRequired: false),
+            FormComponents.buildLabel(
+              'Data Sensor Hardware',
+              isRequired: false,
+            ),
             Row(
               children: [
                 Expanded(
@@ -167,6 +170,27 @@ class DrillingFormView extends GetView<DrillingFormController> {
                                         child: Image.file(
                                           File(controller.imagePath.value),
                                           fit: BoxFit.contain,
+                                          errorBuilder: (context, error, stackTrace) {
+                                            return const Center(
+                                              child: Column(
+                                                mainAxisSize: MainAxisSize.min,
+                                                children: [
+                                                  Icon(
+                                                    Icons.broken_image_rounded,
+                                                    size: 64,
+                                                    color: Colors.white54,
+                                                  ),
+                                                  SizedBox(height: 16),
+                                                  Text(
+                                                    'Gambar tidak dapat dimuat',
+                                                    style: TextStyle(
+                                                      color: Colors.white,
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                            );
+                                          },
                                         ),
                                       ),
                                       Positioned(
@@ -193,6 +217,32 @@ class DrillingFormView extends GetView<DrillingFormController> {
                                 height: 180,
                                 width: double.infinity,
                                 fit: BoxFit.cover,
+                                errorBuilder: (context, error, stackTrace) {
+                                  return Container(
+                                    height: 180,
+                                    width: double.infinity,
+                                    color: Colors.grey.shade100,
+                                    child: const Column(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      children: [
+                                        Icon(
+                                          Icons.broken_image_rounded,
+                                          size: 48,
+                                          color: Colors.grey,
+                                        ),
+                                        SizedBox(height: 8),
+                                        Text(
+                                          'Gambar rusak atau hilang',
+                                          style: TextStyle(
+                                            color: Colors.grey,
+                                            fontSize: 13,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  );
+                                },
                               ),
                             ),
                           );
@@ -239,8 +289,8 @@ class DrillingFormView extends GetView<DrillingFormController> {
                           controller.isImageLoading.value
                               ? 'Memproses...'
                               : (controller.imagePath.value.isEmpty
-                                  ? 'Ambil Gambar'
-                                  : 'Ganti Gambar'),
+                                    ? 'Ambil Gambar'
+                                    : 'Ganti Gambar'),
                         ),
                         style: ElevatedButton.styleFrom(
                           backgroundColor: AppColors.primary,
